@@ -28,6 +28,7 @@ import { Push } from '@/push';
 import type { APIRequest } from '@/requests';
 import * as ResponseHelper from '@/response-helper';
 import type { FrontendService } from '@/services/frontend.service';
+import { PublicApiKeyService } from '@/services/public-api-key.service';
 
 import '@/controllers/active-workflows.controller';
 import '@/controllers/annotation-tags.controller.ee';
@@ -221,6 +222,31 @@ export class Server extends AbstractServer {
 
 		// Parse cookies for easier access
 		this.app.use(cookieParser());
+
+		// NEW: Accept API-key auth on internal /rest routes
+		const apiKeyAuth: express.RequestHandler = async (req, res, next) => {
+			// Only handle if header present and user not yet authenticated
+			const apiKeyHeader = req.headers['x-n8n-api-key'];
+			if (!apiKeyHeader || typeof apiKeyHeader !== 'string' || (req as any).user) {
+				return next();
+			}
+
+			try {
+				const apiKeyService = Container.get(PublicApiKeyService);
+				// Re-use the same validator used by the public API
+				const ok = await apiKeyService.getAuthMiddleware('v1')(req as any, undefined, {
+					name: 'X-N8N-API-KEY',
+				} as any);
+
+				if (ok) return next();
+				res.status(401).json({ message: 'Unauthorized' });
+				return;
+			} catch (error) {
+				return next(error as Error);
+			}
+		};
+
+		this.app.use(apiKeyAuth);
 
 		const { restEndpoint, app } = this;
 
