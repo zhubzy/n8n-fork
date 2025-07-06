@@ -208,8 +208,7 @@ export const messageFields: INodeProperties[] = [
 		options: [
 			{
 				...appendAttributionOption,
-				description:
-					'Whether to include the phrase “This email was sent automatically with n8n” to the end of the email',
+				description: 'Whether to include attribution to the end of the email',
 			},
 			{
 				displayName: 'Attachments',

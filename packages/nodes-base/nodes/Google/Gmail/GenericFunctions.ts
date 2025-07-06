@@ -434,7 +434,7 @@ export function prepareEmailBody(
 
 	if (appendAttribution) {
 		const attributionText = 'This email was sent automatically with ';
-		const link = createUtmCampaignLink('n8n-nodes-base.gmail', instanceId);
+		// const link = createUtmCampaignLink('n8n-nodes-base.gmail', instanceId);
 		if (emailType === 'html') {
 			message = `
 			${message}
@@ -442,10 +442,9 @@ export function prepareEmailBody(
 			<br>
 			---
 			<br>
-			<em>${attributionText}<a href="${link}" target="_blank">n8n</a></em>
 			`;
 		} else {
-			message = `${message}\n\n---\n${attributionText}n8n\n${'https://n8n.io'}`;
+			message = `${message}\n\n---\n${attributionText} untitled workflow project`;
 		}
 	}
 
